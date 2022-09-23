@@ -18,6 +18,10 @@ function App() {
   //  states
   const [data, setData] = useState([]);
   const [value, setValue] = useState("");
+  const [sortValue, setSortValue] = useState("");
+
+  //sort options
+  const sortOptions = ["name", "address", "email", "phone", "status"];
   //  data fetching function
   const loadUserData = async () => {
     const userData = await axios.get("http://localhost:5000/users");
@@ -30,6 +34,8 @@ function App() {
   }, []);
   console.log(data);
   //functions
+
+  //  search function
   const handleSearch = async (e) => {
     e.preventDefault();
     const searchData = await axios.get(
@@ -38,6 +44,20 @@ function App() {
     setData(searchData.data);
     setValue("");
   };
+
+  //sort function
+  const handleSort = async (e) => {
+    let value = e.target.value;
+    setSortValue(value);
+    return await axios
+      .get(`http://localhost:5000/users?_sort=${value}&_order=asc`)
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  //reset function
   const handleReset = () => {
     loadUserData();
   };
@@ -60,14 +80,12 @@ function App() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        {/*<MDBBtnGroup>*/}
         <MDBBtn type="submit" color="dark">
           Search
         </MDBBtn>
         <MDBBtn className="mx-2" color="info" onClick={() => handleReset}>
           Reset
         </MDBBtn>
-        {/*</MDBBtnGroup>*/}
       </form>
       <div style={{ marginTop: "100px" }}>
         <h2>Search, Filter, Sort and Pagination using JSON Fake Rest API</h2>
@@ -111,6 +129,32 @@ function App() {
           </MDBCol>
         </MDBRow>
       </div>
+      <MDBRow>
+        <MDBCol size="8">
+          <h5>Sort BY:</h5>
+          <select
+            style={{
+              width: "50%",
+              borderRadius: "2px",
+              height: "35px",
+            }}
+            onChange={handleSort}
+            value={sortValue}
+          >
+            <option>Please Select Value</option>
+            {sortOptions.map((item, index) => {
+              return (
+                <option key={index} value={item}>
+                  {item}
+                </option>
+              );
+            })}
+          </select>
+        </MDBCol>
+        <MDBCol size="4">
+          <h5>Filter By Status:</h5>
+        </MDBCol>
+      </MDBRow>
     </MDBContainer>
   );
 }
