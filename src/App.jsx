@@ -1,34 +1,118 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import axios from "axios";
+//mdb import
+import {
+  MDBTable,
+  MDBTableHead,
+  MDBTableBody,
+  MDBRow,
+  MDBCol,
+  MDBContainer,
+  MDBBtn,
+  MDBBtnGroup,
+  MDBBadge,
+} from "mdb-react-ui-kit";
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  //  states
+  const [data, setData] = useState([]);
+  const [value, setValue] = useState("");
+  //  data fetching function
+  const loadUserData = async () => {
+    const userData = await axios.get("http://localhost:5000/users");
+    // console.log(userData.data)
+    setData(userData.data);
+  };
+  //useEffect for data fetch
+  useEffect(() => {
+    loadUserData();
+  }, []);
+  console.log(data);
+  //functions
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    const searchData = await axios.get(
+      `http://localhost:5000/users?q=${value}`
+    );
+    setData(searchData.data);
+    setValue("");
+  };
+  const handleReset = () => {
+    loadUserData();
+  };
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <MDBContainer>
+      <form
+        style={{
+          margin: "auto",
+          padding: "15px",
+          maxWidth: "400px",
+          alignContent: "center",
+        }}
+        className="d-flex input-group w-auto"
+        onSubmit={handleSearch}
+      >
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search Name.."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        {/*<MDBBtnGroup>*/}
+        <MDBBtn type="submit" color="dark">
+          Search
+        </MDBBtn>
+        <MDBBtn className="mx-2" color="info" onClick={() => handleReset}>
+          Reset
+        </MDBBtn>
+        {/*</MDBBtnGroup>*/}
+      </form>
+      <div style={{ marginTop: "100px" }}>
+        <h2>Search, Filter, Sort and Pagination using JSON Fake Rest API</h2>
+        <MDBRow>
+          <MDBCol size="12">
+            <MDBTable>
+              <MDBTableHead dark>
+                <tr>
+                  <th scope="col">No.</th>
+                  <th scope="col">Name.</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Phone.</th>
+                  <th scope="col">Address</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </MDBTableHead>
+              <MDBTableBody>
+                {data.map((item, index) => {
+                  return (
+                    <tr key={index}>
+                      <th>{index + 1}</th>
+                      <td>{item.name}</td>
+                      <td>{item.email}</td>
+                      <td>{item.phone}</td>
+                      <td>{item.address}</td>
+                      <td>
+                        <MDBBadge
+                          color={
+                            item.status === "Active" ? "success" : "warning"
+                          }
+                          pill
+                        >
+                          {item.status}
+                        </MDBBadge>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </MDBTableBody>
+            </MDBTable>
+          </MDBCol>
+        </MDBRow>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    </MDBContainer>
+  );
 }
 
-export default App
+export default App;
