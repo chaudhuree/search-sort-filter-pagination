@@ -56,6 +56,15 @@ function App() {
       })
       .catch((err) => console.log(err));
   };
+  //filter function
+  const handleFilter = async (value) => {
+    return await axios
+      .get(`http://localhost:5000/users?status=${value}`)
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((err) => console.log(err));
+  };
 
   //reset function
   const handleReset = () => {
@@ -153,6 +162,23 @@ function App() {
         </MDBCol>
         <MDBCol size="4">
           <h5>Filter By Status:</h5>
+          <MDBBtnGroup>
+            <MDBBtn
+              color="success"
+              onClick={() => handleFilter("Active")}
+              onDoubleClick={handleReset}
+            >
+              Active
+            </MDBBtn>
+            <MDBBtn
+              color="warning"
+              onClick={() => handleFilter("Inactive")}
+              style={{ marginLeft: "8px" }}
+              onDoubleClick={handleReset}
+            >
+              Inactive
+            </MDBBtn>
+          </MDBBtnGroup>
         </MDBCol>
       </MDBRow>
     </MDBContainer>
