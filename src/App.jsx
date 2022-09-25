@@ -22,6 +22,9 @@ function App() {
   const [data, setData] = useState([]);
   const [value, setValue] = useState("");
   const [sortValue, setSortValue] = useState("");
+  //for pagination
+  const [currentPage,setCurrentPage]=useState(0);
+  const [pageLimit,setPageLimit]=useState(4)
 
   //sort options
   const sortOptions = ["name", "address", "email", "phone", "status"];
