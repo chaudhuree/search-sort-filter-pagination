@@ -25,17 +25,41 @@ function App() {
   //for pagination
   const [currentPage, setCurrentPage] = useState(0);
   const [pageLimit] = useState(4);
+  const [sortFilterValue, setSortFilterValue] = useState("");
+  const [operation, setOperation] = useState("");
 
   //sort options
   const sortOptions = ["name", "address", "email", "phone", "status"];
   //  data fetching function
-  const loadUserData = async (start, end, increase) => {
-    const userData = await axios.get(
-      `http://localhost:5000/users?_start=${start}&_end=${end}`
-    );
-    // console.log(userData.data)
-    setData(userData.data);
-    setCurrentPage(currentPage + increase);
+  const loadUserData = async (
+    start,
+    end,
+    increase,
+    optType = null,
+    filterOrSortValue
+  ) => {
+    switch (optType) {
+      case "search":
+        setOperation(optType);
+        setSortValue("");
+        return await axios
+          .get(
+            `http://localhost:5000/users?q=${value}&_start=${start}&_end=${end}`
+          )
+          .then((response) => {
+            setData(response.data);
+            setCurrentPage(currentPage + increase);
+          });
+
+      default:
+        return await axios
+          .get(`http://localhost:5000/users?_start=${start}&_end=${end}`)
+          .then((response) => {
+            setData(response.data);
+            setCurrentPage(currentPage + increase);
+          })
+          .catch((err) => console.error(err.message));
+    }
   };
   //useEffect for data fetch
   useEffect(() => {
@@ -47,11 +71,12 @@ function App() {
   //  search function
   const handleSearch = async (e) => {
     e.preventDefault();
-    const searchData = await axios.get(
-      `http://localhost:5000/users?q=${value}`
-    );
-    setData(searchData.data);
-    setValue("");
+    await loadUserData(0, 4, 0, "search");
+    // const searchData = await axios.get(
+    //   `http://localhost:5000/users?q=${value}`
+    // );
+    // setData(searchData.data);
+    // setValue("");
   };
 
   //sort function
@@ -76,7 +101,8 @@ function App() {
   };
 
   //render pagination
-  const renerPagination = () => {
+  const renderPagination = () => {
+    if (data.length < 4 && currentPage === 0) return;
     if (currentPage === 0) {
       return (
         <MDBPagination className="mb-0">
@@ -84,7 +110,9 @@ function App() {
             <MDBPaginationLink>1</MDBPaginationLink>
           </MDBPaginationItem>
           <MDBPaginationItem>
-            <MDBBtn onClick={() => loadUserData(4, 8, 1)}>Next</MDBBtn>
+            <MDBBtn onClick={() => loadUserData(4, 8, 1, operation)}>
+              Next
+            </MDBBtn>
           </MDBPaginationItem>
         </MDBPagination>
       );
@@ -94,7 +122,12 @@ function App() {
           <MDBPaginationItem>
             <MDBBtn
               onClick={() =>
-                loadUserData((currentPage - 1) * 4, currentPage * 4, -1)
+                loadUserData(
+                  (currentPage - 1) * 4,
+                  currentPage * 4,
+                  -1,
+                  operation
+                )
               }
             >
               Previous
@@ -106,7 +139,12 @@ function App() {
           <MDBPaginationItem>
             <MDBBtn
               onClick={() =>
-                loadUserData((currentPage + 1) * 4, (currentPage + 2) * 4, 1)
+                loadUserData(
+                  (currentPage + 1) * 4,
+                  (currentPage + 2) * 4,
+                  1,
+                  operation
+                )
               }
             >
               Next
@@ -118,7 +156,18 @@ function App() {
       return (
         <MDBPagination className="mb-0">
           <MDBPaginationItem>
-            <MDBBtn onClick={() => loadUserData(4, 8, -1)}>Previous</MDBBtn>
+            <MDBBtn
+              onClick={() =>
+                loadUserData(
+                  (currentPage - 1) * 4,
+                  currentPage * 4,
+                  -1,
+                  operation
+                )
+              }
+            >
+              Previous
+            </MDBBtn>
           </MDBPaginationItem>
           <MDBPaginationItem>
             <MDBPaginationLink>{currentPage + 1}</MDBPaginationLink>
@@ -130,7 +179,7 @@ function App() {
 
   //reset function
   const handleReset = () => {
-    loadUserData();
+    loadUserData(0, 4, 0);
   };
   return (
     <MDBContainer>
@@ -207,7 +256,7 @@ function App() {
             alignContent: "center",
           }}
         >
-          {renerPagination()}
+          {renderPagination()}
         </div>
       </div>
       <MDBRow>
