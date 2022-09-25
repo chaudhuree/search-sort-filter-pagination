@@ -62,6 +62,18 @@ function App() {
             setData(response.data);
           })
           .catch((err) => console.log(err));
+      case "filter":
+        setOperation(optType);
+        setSortFilterValue(filterOrSortValue);
+        setCurrentPage(currentPage + increase);
+        return await axios
+          .get(
+            `http://localhost:5000/users?status=${filterOrSortValue}&_order=asc&_start=${start}&_end=${end}`
+          )
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((err) => console.log(err));
       default:
         return await axios
           .get(`http://localhost:5000/users?_start=${start}&_end=${end}`)
@@ -94,7 +106,7 @@ function App() {
   const handleSort = async (e) => {
     let value = e.target.value;
     setSortValue(value);
-     loadUserData(0, 4, 0, "sort", value);
+    loadUserData(0, 4, 0, "sort", value);
     // return await axios
     //   .get(`http://localhost:5000/users?_sort=${value}&_order=asc`)
     //   .then((response) => {
@@ -104,12 +116,13 @@ function App() {
   };
   //filter function
   const handleFilter = async (value) => {
-    return await axios
-      .get(`http://localhost:5000/users?status=${value}`)
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((err) => console.log(err));
+    loadUserData(0, 4, 0, "filter", value);
+    // return await axios
+    //   .get(`http://localhost:5000/users?status=${value}`)
+    //   .then((response) => {
+    //     setData(response.data);
+    //   })
+    //   .catch((err) => console.log(err));
   };
 
   //render pagination
@@ -123,9 +136,8 @@ function App() {
           </MDBPaginationItem>
           <MDBPaginationItem>
             <MDBBtn
-              onClick={() =>
-                loadUserData(4, 8, 1, operation, sortFilterValue)
-              }
+              className="bg-success"
+              onClick={() => loadUserData(4, 8, 1, operation, sortFilterValue)}
             >
               Next
             </MDBBtn>
@@ -137,6 +149,7 @@ function App() {
         <MDBPagination className="mb-0">
           <MDBPaginationItem>
             <MDBBtn
+              className="bg-success"
               onClick={() =>
                 loadUserData(
                   (currentPage - 1) * 4,
@@ -147,7 +160,7 @@ function App() {
                 )
               }
             >
-              Previous
+              Prev
             </MDBBtn>
           </MDBPaginationItem>
           <MDBPaginationItem>
@@ -155,6 +168,7 @@ function App() {
           </MDBPaginationItem>
           <MDBPaginationItem>
             <MDBBtn
+              className="bg-success"
               onClick={() =>
                 loadUserData(
                   (currentPage + 1) * 4,
@@ -175,6 +189,7 @@ function App() {
         <MDBPagination className="mb-0">
           <MDBPaginationItem>
             <MDBBtn
+              className="bg-success"
               onClick={() =>
                 loadUserData(
                   (currentPage - 1) * 4,
@@ -185,7 +200,7 @@ function App() {
                 )
               }
             >
-              Previous
+              Prev
             </MDBBtn>
           </MDBPaginationItem>
           <MDBPaginationItem>
@@ -246,7 +261,16 @@ function App() {
                 </tr>
               </MDBTableHead>
               <MDBTableBody>
-                {data.map((item, index) => {
+                {data.length == 0 && (
+                  <tr>
+                    <td colSpan={6}>
+                      <MDBBadge color="warning" pill>
+                        No data found
+                      </MDBBadge>
+                    </td>
+                  </tr>
+                )}
+                {data?.map((item, index) => {
                   return (
                     <tr key={index}>
                       <th>{item.id}</th>
@@ -282,49 +306,51 @@ function App() {
           {renderPagination()}
         </div>
       </div>
-      <MDBRow>
-        <MDBCol size="8">
-          <h5>Sort BY:</h5>
-          <select
-            style={{
-              width: "50%",
-              borderRadius: "2px",
-              height: "35px",
-            }}
-            onChange={handleSort}
-            value={sortValue}
-          >
-            <option>Please Select Value</option>
-            {sortOptions.map((item, index) => {
-              return (
-                <option key={index} value={item}>
-                  {item}
-                </option>
-              );
-            })}
-          </select>
-        </MDBCol>
-        <MDBCol size="4">
-          <h5>Filter By Status:</h5>
-          <MDBBtnGroup>
-            <MDBBtn
-              color="success"
-              onClick={() => handleFilter("Active")}
-              onDoubleClick={handleReset}
+      {data.length > 0 && (
+        <MDBRow>
+          <MDBCol size="8">
+            <h5>Sort BY:</h5>
+            <select
+              style={{
+                width: "50%",
+                borderRadius: "2px",
+                height: "35px",
+              }}
+              onChange={handleSort}
+              value={sortValue}
             >
-              Active
-            </MDBBtn>
-            <MDBBtn
-              color="warning"
-              onClick={() => handleFilter("Inactive")}
-              style={{ marginLeft: "8px" }}
-              onDoubleClick={handleReset}
-            >
-              Inactive
-            </MDBBtn>
-          </MDBBtnGroup>
-        </MDBCol>
-      </MDBRow>
+              <option>Please Select Value</option>
+              {sortOptions.map((item, index) => {
+                return (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                );
+              })}
+            </select>
+          </MDBCol>
+          <MDBCol size="4">
+            <h5>Filter By Status:</h5>
+            <MDBBtnGroup>
+              <MDBBtn
+                color="success"
+                onClick={() => handleFilter("Active")}
+                onDoubleClick={handleReset}
+              >
+                Active
+              </MDBBtn>
+              <MDBBtn
+                color="warning"
+                onClick={() => handleFilter("Inactive")}
+                style={{ marginLeft: "8px" }}
+                onDoubleClick={handleReset}
+              >
+                Inactive
+              </MDBBtn>
+            </MDBBtnGroup>
+          </MDBCol>
+        </MDBRow>
+      )}
     </MDBContainer>
   );
 }
