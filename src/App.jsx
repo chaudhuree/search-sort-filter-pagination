@@ -50,7 +50,18 @@ function App() {
             setData(response.data);
             setCurrentPage(currentPage + increase);
           });
-
+      case "sort":
+        setOperation(optType);
+        setSortFilterValue(filterOrSortValue);
+        setCurrentPage(currentPage + increase);
+        return await axios
+          .get(
+            `http://localhost:5000/users?_sort=${filterOrSortValue}&_order=asc&_start=${start}&_end=${end}`
+          )
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((err) => console.log(err));
       default:
         return await axios
           .get(`http://localhost:5000/users?_start=${start}&_end=${end}`)
@@ -83,12 +94,13 @@ function App() {
   const handleSort = async (e) => {
     let value = e.target.value;
     setSortValue(value);
-    return await axios
-      .get(`http://localhost:5000/users?_sort=${value}&_order=asc`)
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((err) => console.log(err));
+     loadUserData(0, 4, 0, "sort", value);
+    // return await axios
+    //   .get(`http://localhost:5000/users?_sort=${value}&_order=asc`)
+    //   .then((response) => {
+    //     setData(response.data);
+    //   })
+    //   .catch((err) => console.log(err));
   };
   //filter function
   const handleFilter = async (value) => {
@@ -110,7 +122,11 @@ function App() {
             <MDBPaginationLink>1</MDBPaginationLink>
           </MDBPaginationItem>
           <MDBPaginationItem>
-            <MDBBtn onClick={() => loadUserData(4, 8, 1, operation)}>
+            <MDBBtn
+              onClick={() =>
+                loadUserData(4, 8, 1, operation, sortFilterValue)
+              }
+            >
               Next
             </MDBBtn>
           </MDBPaginationItem>
@@ -126,7 +142,8 @@ function App() {
                   (currentPage - 1) * 4,
                   currentPage * 4,
                   -1,
-                  operation
+                  operation,
+                  sortFilterValue
                 )
               }
             >
@@ -143,7 +160,8 @@ function App() {
                   (currentPage + 1) * 4,
                   (currentPage + 2) * 4,
                   1,
-                  operation
+                  operation,
+                  sortFilterValue
                 )
               }
             >
@@ -162,7 +180,8 @@ function App() {
                   (currentPage - 1) * 4,
                   currentPage * 4,
                   -1,
-                  operation
+                  operation,
+                  sortFilterValue
                 )
               }
             >
@@ -181,6 +200,8 @@ function App() {
   const handleReset = () => {
     setOperation("");
     setValue("");
+    setSortFilterValue("");
+    setSortValue("");
     loadUserData(0, 4, 0);
   };
   return (
