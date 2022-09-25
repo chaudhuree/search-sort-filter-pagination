@@ -12,6 +12,9 @@ import {
   MDBBtn,
   MDBBtnGroup,
   MDBBadge,
+  MDBPagination,
+  MDBPaginationItem,
+  MDBPaginationLink,
 } from "mdb-react-ui-kit";
 
 function App() {
@@ -24,7 +27,7 @@ function App() {
   const sortOptions = ["name", "address", "email", "phone", "status"];
   //  data fetching function
   const loadUserData = async () => {
-    const userData = await axios.get("http://localhost:5000/users");
+    const userData = await axios.get("http://localhost:5000/users?_start=0&_end=4");
     // console.log(userData.data)
     setData(userData.data);
   };
