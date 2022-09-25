@@ -179,6 +179,8 @@ function App() {
 
   //reset function
   const handleReset = () => {
+    setOperation("");
+    setValue("");
     loadUserData(0, 4, 0);
   };
   return (
@@ -203,7 +205,7 @@ function App() {
         <MDBBtn type="submit" color="dark">
           Search
         </MDBBtn>
-        <MDBBtn className="mx-2" color="info" onClick={() => handleReset}>
+        <MDBBtn className="mx-2" color="info" onClick={() => handleReset()}>
           Reset
         </MDBBtn>
       </form>
