@@ -26,14 +26,14 @@ function App() {
   //sort options
   const sortOptions = ["name", "address", "email", "phone", "status"];
   //  data fetching function
-  const loadUserData = async () => {
-    const userData = await axios.get("http://localhost:5000/users?_start=0&_end=4");
+  const loadUserData = async (start,end,increase) => {
+    const userData = await axios.get(`http://localhost:5000/users?_start=${start}&_end=${end}`);
     // console.log(userData.data)
     setData(userData.data);
   };
   //useEffect for data fetch
   useEffect(() => {
-    loadUserData();
+    loadUserData(0,4,4);
   }, []);
   console.log(data);
   //functions
